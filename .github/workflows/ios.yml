@@ -22,7 +22,8 @@ jobs:
           npx cap add ios
           npx cap sync ios
       - name: Compilar sem assinatura
-        run: |
+        run: npx cap add ios || true
+
           cd ios/App
           xcodebuild -workspace App.xcworkspace -scheme App -configuration Release \
             -sdk iphoneos -archivePath $PWD/build/App.xcarchive archive \
