@@ -16,7 +16,12 @@ jobs:
       - name: Embutir three.js
         run: sh embutir-three.sh
       - name: Instalar dependencias
-        run: npm install
+        run: npm install      - name: Preparar www
+        run: |
+          mkdir -p www
+          cp index.html www/
+          cp *.js www/ 2>/dev/null || true
+
       - name: Criar projeto iOS
         run: |
           npx cap add ios
