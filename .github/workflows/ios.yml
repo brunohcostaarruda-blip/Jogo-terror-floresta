@@ -1,0 +1,39 @@
+name: Gerar IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Embutir three.js
+        run: sh embutir-three.sh
+      - name: Instalar dependencias
+        run: npm install
+      - name: Criar projeto iOS
+        run: |
+          npx cap add ios
+          npx cap sync ios
+      - name: Compilar sem assinatura
+        run: |
+          cd ios/App
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release \
+            -sdk iphoneos -archivePath $PWD/build/App.xcarchive archive \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
+      - name: Empacotar IPA
+        run: |
+          cd ios/App/build/App.xcarchive/Products/Applications
+          mkdir Payload
+          cp -r App.app Payload/
+          zip -qr $GITHUB_WORKSPACE/FlorestaViva.ipa Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FlorestaViva-ipa
+          path: FlorestaViva.ipa
