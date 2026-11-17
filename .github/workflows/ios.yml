@@ -16,29 +16,25 @@ jobs:
       - name: Embutir three.js
         run: sh embutir-three.sh
       - name: Instalar dependencias
-        run: npm install      - name: Preparar www
+        run: npm install
+      - name: Preparar www
         run: |
           mkdir -p www
           cp index.html www/
           cp *.js www/ 2>/dev/null || true
-
       - name: Criar projeto iOS
         run: |
-          npx cap add ios
+          npx cap add ios || true
           npx cap sync ios
       - name: Compilar sem assinatura
-        run: npx cap add ios || true
-
+        run: |
           cd ios/App
-          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release \
-            -sdk iphoneos -archivePath $PWD/build/App.xcarchive archive \
-            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -sdk iphoneos -archivePath $PWD/build/App.xcarchive archive CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=""
       - name: Empacotar IPA
         run: |
-          cd ios/App/build/App.xcarchive/Products/Applications
-          mkdir Payload
-          cp -r App.app Payload/
-          zip -qr $GITHUB_WORKSPACE/FlorestaViva.ipa Payload
+          mkdir -p Payload
+          cp -R ios/App/build/App.xcarchive/Products/Applications/App.app Payload/
+          zip -r FlorestaViva.ipa Payload
       - uses: actions/upload-artifact@v4
         with:
           name: FlorestaViva-ipa
