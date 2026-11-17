@@ -19,9 +19,11 @@ jobs:
         run: npm install
       - name: Preparar www
         run: |
-          mkdir -p www
-          cp index.html www/
-          cp *.js www/ 2>/dev/null || true
+          mkdir -p www tmp
+          unzip -q floresta-app.zip -d tmp
+          F=$(find tmp -name index.html -not -path '*/__MACOSX/*' | head -n 1)
+          [ -n "$F" ] || { echo "index.html nao encontrado"; ls -R tmp; exit 1; }
+          cp -R "$(dirname "$F")"/. www/
       - name: Criar projeto iOS
         run: |
           npx cap add ios || true
